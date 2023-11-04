@@ -35,19 +35,29 @@ def grab_ip_list():
         except ValueError:
             print("Please enter a valid integer.")
 
- 
 #Selects a Rnadom range and Make chosen Range a list , and save list into a file named selected_ip_range.txt => if 
 def work_with_ips():
-    with open("ips.txt","r") as inp:
-      ipranges = inp.readlines()
-    random_range = random.choice(ipranges)
-    print('selected random range is:',random_range)
-    with open("selected_ip_range.txt","a") as inp:
-        for ip in IPNetwork(random_range):
-            ip = str(ip)
-            inp.write((ip))
-            inp.write('\n')
-    print("ip list created successfully")
+    try:
+        # Check if the file exists and is not empty
+        if os.path.getsize("ips.txt") > 0:
+            with open("ips.txt", "r") as inp:
+                ipranges = [line.strip() for line in inp if line.strip()]
+            
+            if ipranges:
+                random_range = random.choice(ipranges)
+                logging.info('Selected random range is: %s', random_range)
+                
+                # It's better to overwrite to ensure a fresh list each time
+                with open("selected_ip_range.txt", "w") as out:
+                    for ip in IPNetwork(random_range):
+                        out.write(f"{ip}\n")
+                logging.info("IP list created successfully")
+            else:
+                logging.warning("The IP ranges file is empty.")
+        else:
+            logging.warning("The IP ranges file does not exist or is empty.")
+    except Exception as e:
+        logging.error("An error occurred: %s", e)
 
 
 #Checks that given ips PORT is OPEN? return as T-F 
