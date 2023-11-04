@@ -14,23 +14,26 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 #Grab ip ranges from server and save it in a text file and make range
 def grab_ip_list():
-    c = input("Enter Country number :\n 1-China \n 2-India\n 3-UnitedStates\n -> Default is US\n ")
-    c = int(c)
-    url = 'https://www.ipdeny.com/ipblocks/data/aggregated/us-aggregated.zone'    
-    if(c==1):
-        url = 'https://www.ipdeny.com/ipblocks/data/aggregated/cn-aggregated.zone'
-        print("Grabbing China IP Range")
-    elif(c==2):
-        url = 'https://www.ipdeny.com/ipblocks/data/aggregated/in-aggregated.zone'
-        print("Grabbing India IP Range")
-    elif(c==3):
-        url = 'https://www.ipdeny.com/ipblocks/data/aggregated/us-aggregated.zone'
-        print("Grabbing United States Range")   
-    else:
-        print('Wrong Number, Using Default Country')  
-        print("Grabbing United States Range")   
-    urllib.request.urlretrieve(url, "ips.txt")
-    print('Done!!!')
+    country_urls = {
+        1: ('China', 'https://www.ipdeny.com/ipblocks/data/aggregated/cn-aggregated.zone'),
+        2: ('India', 'https://www.ipdeny.com/ipblocks/data/aggregated/in-aggregated.zone'),
+        3: ('United States', 'https://www.ipdeny.com/ipblocks/data/aggregated/us-aggregated.zone')
+    }
+    
+    while True:
+        try:
+            c = input("Enter Country number:\n 1-China \n 2-India\n 3-United States\n-> ")
+            c = int(c)
+            if c in country_urls:
+                country, url = country_urls[c]
+                print(f"Grabbing {country} IP Range")
+                urllib.request.urlretrieve(url, "ips.txt")
+                print('Done!!!')
+                break
+            else:
+                print("Invalid number, please enter a valid country number.")
+        except ValueError:
+            print("Please enter a valid integer.")
 
  
 #Selects a Rnadom range and Make chosen Range a list , and save list into a file named selected_ip_range.txt => if 
